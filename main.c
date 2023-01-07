@@ -15,6 +15,34 @@ unsigned char Key[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08 };
 
 DWORD totalRead;
 
+void MySleep(int ms)
+{
+	// Convert milliseconds to 100 nanosecond intervals
+	const long long intervals = -10000ll * ms;
+
+	// Create a delay object
+	const HANDLE delayHandle = CreateWaitableTimer(NULL, TRUE, NULL);
+	if (delayHandle == NULL)
+	{
+		// Handle error
+		return;
+	}
+
+	// Set the delay object to the desired timeout
+	if (!SetWaitableTimer(delayHandle, (const LARGE_INTEGER*)&intervals, 0, NULL, NULL, FALSE))
+	{
+		// Handle error
+		CloseHandle(delayHandle);
+		return;
+	}
+
+	// Wait for the delay object
+	WaitForSingleObject(delayHandle, INFINITE);
+
+	// Clean up
+	CloseHandle(delayHandle);
+}
+
 int main()
 {
 	// Initialize Winsock
@@ -49,7 +77,7 @@ int main()
 			if (connect(client, (SOCKADDR*)&addr, addrLen) == SOCKET_ERROR)
 			{
 				printf("Error: connect failed with error %d\n", WSAGetLastError());
-				Sleep(10000);
+				MySleep(10000);
 				numTries++;
 			}
 			else
