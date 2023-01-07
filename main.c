@@ -1,5 +1,6 @@
 #include <winsock2.h>
 #include <windows.h>
+#include <winternl.h>
 #include <string.h>
 #include <stdio.h>
 
